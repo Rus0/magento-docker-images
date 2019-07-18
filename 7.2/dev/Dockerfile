@@ -4,6 +4,13 @@ MAINTAINER "Rus0 <andonid88@gmail.com>"
 ENV PHP_EXTRA_CONFIGURE_ARGS="--enable-fpm --with-fpm-user=magento2 --with-fpm-group=magento2"
 ENV NODE_VERSION="11.x"
 
+RUN echo "deb http://deb.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
+
+RUN apt-get update && apt-get install -my wget gnupg
+
+RUN apt-key adv --keyserver pgp.mit.edu --recv-keys 5072E1F5 \
+    && echo "deb http://repo.mysql.com/apt/debian/ jessie mysql-5.7" >> /etc/apt/sources.list
+
 RUN apt-get update && apt-get install -y \
     apt-utils \
     sudo \
@@ -25,14 +32,24 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     mysql-client \
     ocaml \
-    expect
+    expect \
+    libsodium23
+
 
 RUN curl -L https://github.com/bcpierce00/unison/archive/2.48.4.tar.gz | tar zxv -C /tmp && \
              cd /tmp/unison-2.48.4 && \
              sed -i -e 's/GLIBC_SUPPORT_INOTIFY 0/GLIBC_SUPPORT_INOTIFY 1/' src/fsmonitor/linux/inotify_stubs.c && \
              make && \
              cp src/unison src/unison-fsmonitor /usr/local/bin && \
-             cd /root && rm -rf /tmp/unison-2.48.4 
+             cd /root && rm -rf /tmp/unison-2.48.4
+
+RUN apt-get update && apt-get install -y pkg-config patch
+ADD https://git.archlinux.org/svntogit/packages.git/plain/trunk/freetype.patch?h=packages/php /tmp/freetype.patch
+RUN docker-php-source extract; \
+    cd /usr/src/php; \
+    patch -p1 -i /tmp/freetype.patch; \
+    rm /tmp/freetype.patch
+
 RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ 
 RUN docker-php-ext-configure hash --with-mhash 
 RUN docker-php-ext-install -j$(nproc) intl xsl gd zip pdo_mysql opcache soap pcntl bcmath json iconv
@@ -90,7 +107,6 @@ ENV MAGENTO_ENABLE_SYNC_MARKER 0
 RUN sudo apt-get install python2.7
 
 ## Node
-RUN apt-get update && apt-get install -my wget gnupg
 WORKDIR /tmp/grunt
 RUN curl -sL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - \
     && apt-get update
