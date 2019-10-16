@@ -8,8 +8,8 @@ RUN echo "deb http://deb.debian.org/debian stretch-backports main" >> /etc/apt/s
 
 RUN apt-get update && apt-get install -my wget gnupg
 
-RUN apt-key adv --keyserver pgp.mit.edu --recv-keys 5072E1F5 \
-    && echo "deb http://repo.mysql.com/apt/debian/ jessie mysql-5.7" >> /etc/apt/sources.list
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 5072E1F5 
+RUN echo "deb http://repo.mysql.com/apt/debian/ jessie mysql-5.7" >> /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y \
     apt-utils \
@@ -33,7 +33,8 @@ RUN apt-get update && apt-get install -y \
     mysql-client \
     ocaml \
     expect \
-    libsodium23
+    libsodium23 \
+    libzip-dev
 
 
 RUN curl -L https://github.com/bcpierce00/unison/archive/2.48.4.tar.gz | tar zxv -C /tmp && \
