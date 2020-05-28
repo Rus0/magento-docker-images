@@ -61,16 +61,16 @@ RUN a2enmod proxy
 RUN a2enmod proxy_fcgi 
 RUN rm -f /etc/apache2/sites-enabled/000-default.conf 
 RUN useradd -m -d /home/magento2 -s /bin/bash magento2 && adduser magento2 sudo 
+RUN pecl install xdebug-stable \
+    && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
+    && echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
 RUN touch /etc/sudoers.d/privacy 
 RUN echo "Defaults        lecture = never" >> /etc/sudoers.d/privacy 
 RUN mkdir /home/magento2/magento2 && mkdir /home/magento2/state 
 RUN curl -sS https://accounts.magento.cloud/cli/installer -o /home/magento2/installer 
 RUN rm -r /usr/local/etc/php-fpm.d/* 
 RUN sed -i 's/www-data/magento2/g' /etc/apache2/envvars 
-RUN pecl install xdebug-stable \
-    && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
-    && echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
 
 # PHP config
 ADD conf/php.ini /usr/local/etc/php
