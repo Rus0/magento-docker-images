@@ -22,7 +22,6 @@ RUN apt-get update && apt-get install -y \
     nano \
     openssh-server \
     supervisor \
-    mysql-client \
     ocaml \
     expect
 
@@ -47,7 +46,9 @@ RUN apt-get update \
 
 RUN a2enmod rewrite \
     && a2enmod proxy \
-    && a2enmod proxy_fcgi 
+    && a2enmod proxy_fcgi \
+    && a2enmod headers \
+    && a2enmod expires
 
 RUN rm -f /etc/apache2/sites-enabled/000-default.conf 
 
@@ -95,13 +96,6 @@ ENV SHARED_CODE_PATH /var/www/html
 ENV WEBROOT_PATH /var/www/html
 ENV MAGENTO_ENABLE_SYNC_MARKER 0
 
-## Node
-RUN apt-get update && apt-get install -my wget gnupg
-WORKDIR /tmp/grunt
-RUN curl -sL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - \
-&& apt-get update \
-    && apt-get install -y build-essential nodejs \
-    && npm install -g express && npm install -g grunt-cli
 
 RUN chown -R magento2:magento2 /home/magento2 && \
     chown -R magento2:magento2 /var/www/html

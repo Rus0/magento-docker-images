@@ -65,7 +65,9 @@ RUN pecl install xdebug-stable \
     && echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.remote_enable=on" >> /usr/local/etc/php/conf.d/xdebug.ini \
     && echo "xdebug.remote_autostart=off" >> /usr/local/etc/php/conf.d/xdebug.ini
-RUN pecl install mongodb
+RUN apt-get install -y libcurl4-openssl-dev pkg-config libssl-dev
+RUN pecl install mongodb 
+RUN echo "extension=$(find /usr/local/lib/php/extensions/ -name mongodb.so)" > /usr/local/etc/php/conf.d/mongo.ini
 RUN touch /etc/sudoers.d/privacy 
 RUN echo "Defaults        lecture = never" >> /etc/sudoers.d/privacy 
 RUN mkdir /home/magento2/magento2 && mkdir /home/magento2/state 
@@ -116,7 +118,6 @@ RUN npm install -g express && npm install -g grunt-cli && npm install -g node-gy
 ## Yarn
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
     && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-
 
 RUN npm install -g yarn
 
